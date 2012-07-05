@@ -19,6 +19,7 @@
 #       - @since
 #       - @value (shown as link instead of replacement)
 #       - @version
+#		- @static
 #
 #	Supported tag to avoid JavaDoc to be rendered:
 #
@@ -66,7 +67,7 @@
 #
 ###############################################################################
 
-# This file is part of Natural Docs, which is Copyright � 2003-2010 Greg Valure
+# This file is part of Natural Docs, which is Copyright © 2003-2010 Greg Valure
 # Natural Docs is licensed under version 3 of the GNU Affero General Public License (AGPL)
 # Refer to License.txt for the complete details
 
@@ -82,7 +83,7 @@ package NaturalDocs::Parser::JavaDoc;
 #
 my %blockTags = ( 'param' => 1, 'author' => 1, 'deprecated' => 1, 'exception' => 1, 'return' => 1, 'see' => 1,
                              'serial' => 1, 'serialfield' => 1, 'serialdata' => 1, 'since' => 1, 'throws' => 1, 'version' => 1,
-                             'returns' => 1, 'private' => 1 );
+                             'returns' => 1, 'private' => 1, 'static' => 1 );
 
 #
 #   hash: inlineTags
@@ -152,7 +153,7 @@ sub ParseComment #(string[] commentLines, bool isJavaDoc, int lineNumber, Parsed
     my $sharedCodeIndent;
 
     while ($i < scalar @$commentLines &&
-              !($commentLines->[$i] =~ /^ *@([a-z]+) /i && exists $blockTags{$1}) )
+              !($commentLines->[$i] =~ /^ *@([a-z]+)/i && exists $blockTags{$1}) )
         {
         my $line = $self->ConvertAmpChars($commentLines->[$i]);
         my @tokens = split(/(&lt;\/?pre&gt;)/, $line);
@@ -230,19 +231,26 @@ sub ParseComment #(string[] commentLines, bool isJavaDoc, int lineNumber, Parsed
     # Stage two: Block level tags.
 
     my ($keyword, $value, $unformattedTextPtr, $unformattedTextCloser);
-    my ($params, $authors, $deprecation, $throws, $returns, $seeAlso, $since, $version, $isPrivate);
-
-
+    my ($params, $authors, $deprecation, $throws, $returns, $seeAlso, $since, $version, $isPrivate, $static);
+	
+	$isPrivate = 0;
+	
     while ($i < scalar @$commentLines)
         {
         my $line = $self->ConvertAmpChars($commentLines->[$i]);
         $line =~ s/^ +//;
-
-			if ( $line eq '@private' )
-				{
-					$isPrivate = 1 ;
-				};
-
+		
+		if ( $line eq '@private' )
+			{
+				$isPrivate = 1 ;
+				last;
+			};
+			
+		if ( $line eq '@static' )
+			{
+				$static = 1 ;
+			};
+		
         if ($line =~ /^@([a-z]+) ?(.*)$/i)
             {
             ($keyword, $value) = (lc($1), $2);
@@ -370,10 +378,10 @@ sub ParseComment #(string[] commentLines, bool isJavaDoc, int lineNumber, Parsed
     # Stage three: Build the parsed topic.
 
     my $summary = NaturalDocs::Parser->GetSummaryFromBody($output);
-
-    push @$parsedTopics, NaturalDocs::Parser::ParsedTopic->New(undef, undef, undef, undef, undef, $summary,
-                                                                                                $output, $lineNumber, undef, $isPrivate);
-    return 1;
+	push @$parsedTopics, NaturalDocs::Parser::ParsedTopic->New(undef, undef, undef, undef, undef, $summary,
+                                                                                                $output, $lineNumber, undef, $isPrivate, $static);
+		                             
+    return 0;
     };
 
 

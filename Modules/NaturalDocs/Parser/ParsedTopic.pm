@@ -38,7 +38,7 @@ package NaturalDocs::Parser::ParsedTopic;
 #       LINE_NUMBER  - The line number the topic appears at in the file.
 #       IS_LIST - Whether the topic is a list.
 #
-use NaturalDocs::DefineMembers 'TYPE', 'TITLE', 'PACKAGE', 'USING', 'PROTOTYPE', 'SUMMARY', 'BODY', 'LINE_NUMBER', 'IS_LIST', 'IS_PRIVATE';
+use NaturalDocs::DefineMembers 'TYPE', 'TITLE', 'PACKAGE', 'USING', 'PROTOTYPE', 'SUMMARY', 'BODY', 'LINE_NUMBER', 'IS_LIST', 'IS_PRIVATE', 'IS_STATIC';
 # DEPENDENCY: New() depends on the order of these constants, and that this class is not inheriting any members.
 
 
@@ -98,12 +98,14 @@ use NaturalDocs::DefineMembers 'TYPE', 'TITLE', 'PACKAGE', 'USING', 'PROTOTYPE',
 #       body          - The body of the topic, formatted in <NDMarkup>.  May be undef, as some topics may not have bodies.
 #       lineNumber - The line number the topic appears at in the file.
 #       isList          - Whether the topic is a list topic or not.
+#		isPrivate		- Whether the topic is private
+#		isStatic		- Whether the topic is static
 #
 #   Returns:
 #
 #       The new object.
 #
-sub New #(type, title, package, using, prototype, summary, body, lineNumber, isList, isPrivate)
+sub New #(type, title, package, using, prototype, summary, body, lineNumber, isList, isPrivate, isStatic)
     {
     # DEPENDENCY: This depends on the order of the parameter list being the same as the constants, and that there are no
     # members inherited from a base class.
@@ -144,6 +146,11 @@ sub SetIsList
 # Returns a boolean if the topic is private
 sub IsPrivate
 	{ return $_[0]->[IS_PRIVATE] eq 1; };
+
+# Function: IsStatic
+# Returns a boolean if the topic is static
+sub IsStatic
+	{ return $_[0]->[IS_STATIC] eq 1; };
 
 # Function: SetIsPrivate
 # Sets whether the topic is private.

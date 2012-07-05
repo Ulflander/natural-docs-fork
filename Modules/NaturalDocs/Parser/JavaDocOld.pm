@@ -19,7 +19,8 @@ F###############################################################################
 #       - @since
 #       - @value (shown as link instead of replacement)
 #       - @version
-#		- @var
+#	- @var
+#	- @static
 #
 #	Supported tag to avoid JavaDoc to be rendered:
 #
@@ -82,7 +83,7 @@ package NaturalDocs::Parser::JavaDoc;
 #
 my %blockTags = ( 'param' => 1, 'var' => 1 , 'author' => 1, 'deprecated' => 1, 'exception' => 1, 'return' => 1, 'see' => 1,
                              'serial' => 1, 'serialfield' => 1, 'serialdata' => 1, 'since' => 1, 'throws' => 1, 'version' => 1,
-                             'returns' => 1, 'private' => 1 );
+                             'returns' => 1, 'private' => 1, 'static' => 1 );
 
 #
 #   hash: inlineTags
@@ -238,6 +239,22 @@ sub ParseComment #(string[] commentLines, bool isJavaDoc, int lineNumber, Parsed
         my $line = $self->ConvertAmpChars($commentLines->[$i]);
         $line =~ s/^ +//;
 
+			if ($line eq '@private' )
+				{
+					print ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'."\n" ;
+					$private = 'private' ;
+					last;
+					
+
+				}
+				if ($line eq '@static' )
+				{
+					print ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'."\n" ;
+					$private = 'private' ;
+					last;
+					
+
+				}
         if ($line =~ /^@([a-z]+) ?(.*)$/i)
             {
 
@@ -250,15 +267,7 @@ sub ParseComment #(string[] commentLines, bool isJavaDoc, int lineNumber, Parsed
                 $unformattedText = undef;
                 };
 
-			if ($line eq '@private' )
-				{
-					print ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'."\n" ;
-					$private = 'private' ;
-					last;
-					
-
-				}
-			elsif ($keyword eq 'var')
+			if ($keyword eq 'var')
                 {
                 $type .= '<pre>' . $2 . '</pre>';
                 $unformattedText = undef;

@@ -643,7 +643,7 @@ sub BuildTitle #(sourceFile)
     if (defined $menuTitle && $menuTitle ne $title)
         {  $title .= ' - ' . $menuTitle;  };
 
-    $title = NaturalDocs::Settings->appTitleString() . ' | Documentation | File ' . $self->StringToHTML($title);
+    $title = NaturalDocs::Settings->appTitleString() . ' | ' . $self->StringToHTML($title);
 
     return $title;
     };
@@ -1019,6 +1019,12 @@ sub BuildContent #(sourceFile, parsedFile)
 
     while ($i < scalar @$parsedFile)
         {
+        if ($parsedFile->[$i]->IsPrivate())
+        	{
+        	$i++;
+        	next;	
+        	}
+        	
         my $anchor = $self->SymbolToHTMLSymbol($parsedFile->[$i]->Symbol());
 
         my $scope = NaturalDocs::Topics->TypeInfo($parsedFile->[$i]->Type())->Scope();
@@ -1042,8 +1048,18 @@ sub BuildContent #(sourceFile, parsedFile)
 
                 . '<' . $headerType . ' class=CTitle>'
                     . '<a name="' . $anchor . '"></a>'
-                    . $self->StringToHTML( $parsedFile->[$i]->Title(), ADD_HIDDEN_BREAKS)
-                . '</' . $headerType . '>';
+                    . $self->StringToHTML( $parsedFile->[$i]->Title(), ADD_HIDDEN_BREAKS);
+        
+            if ($parsedFile->[$i]->IsStatic())
+                {
+            	$output .=
+	            '<span class="PStatic">'
+	                . '[STATIC]'
+	            . '</span>';
+                }
+                
+                    
+                $output .= '</' . $headerType . '>';
 
 
         my $hierarchy;
@@ -1125,7 +1141,7 @@ sub BuildSummary #(sourceFile, parsedFile, index)
 
     if (!defined $index || $index == 0)
         {
-        $index = 0;
+        $index = 1;
         $completeSummary = 1;
         }
     else
@@ -1164,6 +1180,12 @@ sub BuildSummary #(sourceFile, parsedFile, index)
         while ($index < scalar @$parsedFile)
             {
             my $topic = $parsedFile->[$index];
+            
+            if($topic->IsPrivate())
+	            {
+	            	$index++;
+	            	next;
+				}
             my $scope = NaturalDocs::Topics->TypeInfo($topic->Type())->Scope();
 
             if (!$completeSummary && ($scope == ::SCOPE_START() || $scope == ::SCOPE_END()) )
@@ -1212,8 +1234,16 @@ sub BuildSummary #(sourceFile, parsedFile, index)
             '<a href="#' . $self->SymbolToHTMLSymbol($parsedFile->[$index]->Symbol()) . '" ' . $toolTipProperties . '>'
                 . $self->StringToHTML( $parsedFile->[$index]->Title(), ADD_HIDDEN_BREAKS)
             . '</a>';
-
-
+			
+				
+            if (defined $topic->Prototype() && $topic->IsStatic())
+                {
+            	$output .=
+	            '<span class="PStatic">'
+	                . '[STATIC]'
+	            . '</span>';
+                }
+                
             $output .=
             '</td><td class=SDescription>';
 

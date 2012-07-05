@@ -114,7 +114,7 @@ sub BuildFile #(sourceFile, parsedFile)
 
             . $self->StandardComments()
 
-			. '<div class="AppTitle">' . $self->StringToHTML(NaturalDocs::Settings->appTitleString()) . ' | Documentation</div>'
+			. '<h1 class="AppTitle">' . $self->StringToHTML(NaturalDocs::Settings->appTitleString()) . '</h1>'
 		
             . "\n\n\n"
                 . $self->BuildContent($sourceFile, $parsedFile)
@@ -231,7 +231,7 @@ sub BuildIndex #(type)
         . '</head><body class="PopupSearchResultsPage" onLoad="NDOnLoad()">'
             . $self->OpeningBrowserStyles()
 
-			. '<div class="AppTitle">' . $self->StringToHTML(NaturalDocs::Settings->appTitleString()) . ' | Documentation</div>'
+			. '<h1 class="AppTitle">' . $self->StringToHTML(NaturalDocs::Settings->appTitleString()) . '</h1>'
 
         . $self->StandardComments()
 
