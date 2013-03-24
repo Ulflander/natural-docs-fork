@@ -10,3 +10,6 @@ Fork of [Natural Docs](http://www.naturaldocs.org/)
 * `Service` topic (`Service` and `Services` keywords)
 * `Hook` topic (`Hooks` and `Hook` keywords)
 * Beautiful CSS
+
+### Working in a venv
+
