@@ -144,7 +144,7 @@ sub ParseComment #(commentLines, isJavaDoc, lineNumber, parsedTopics)
         # If we're in a code section...
         if ($inCodeSection)
             {
-            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
+            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram|generated))? *\)$/i)
                 {  $inCodeSection = undef;  };
 
             $prevLineBlank = 0;
@@ -229,7 +229,7 @@ sub ParseComment #(commentLines, isJavaDoc, lineNumber, parsedTopics)
             $prevLineBlank = 0;
             $bodyEnd++;
 
-            if ($commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\)$/i)
+            if ($commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram|generated) *\)$/i)
                 {  $inCodeSection = 1;  };
             };
 
@@ -376,7 +376,7 @@ sub FormatBody #(commentLines, startingIndex, endingIndex, type, isList)
         # If we're in a tagged code section...
         if ($topLevelTag == TAG_TAGCODE)
             {
-            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
+            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|generated|example|diagram))? *\)$/i)
                 {
                 $codeBlock =~ s/\n+$//;
                 $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
@@ -526,7 +526,7 @@ sub FormatBody #(commentLines, startingIndex, endingIndex, type, isList)
                 }
 
             # If the line looks like a code tag...
-            elsif ($commentLines->[$index] =~ /^\( *(?:(?:start|begin)? +)?(table|code|example|diagram) *\)$/i)
+            elsif ($commentLines->[$index] =~ /^\( *(?:(?:start|begin)? +)?(table|generated|code|example|diagram) *\)$/i)
                 {
 				my $codeType = lc($1);
 

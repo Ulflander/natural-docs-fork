@@ -18,7 +18,7 @@
 #
 ###############################################################################
 
-# This file is part of Natural Docs, which is Copyright © 2003-2010 Greg Valure
+# This file is part of Natural Docs, which is Copyright ï¿½ 2003-2010 Greg Valure
 # Natural Docs is licensed under version 3 of the GNU Affero General Public License (AGPL)
 # Refer to License.txt for the complete details
 
@@ -593,12 +593,12 @@ sub CleanComment #(commentLines)
 	        # Check for the start and end of code sections.  Note that this doesn't affect vertical line removal.
 
 	        if (!$inCodeSection &&
-	        	$commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\)$/i )
+	        	$commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|generated|diagram) *\)$/i )
 	        	{
 	        	$inCodeSection = 1;
 	        	}
 	        elsif ($inCodeSection &&
-	        	    $commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
+	        	    $commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|generated|diagram))? *\)$/i)
 	        	 {
 	        	 $inCodeSection = 0;
 	        	 }

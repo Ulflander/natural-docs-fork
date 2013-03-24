@@ -1577,9 +1577,9 @@ sub BuildFooter #(bool multiline)
 	my $theTime = "$hour:$minute:$second, on $weekDays[$dayOfWeek] $months[$month] $dayOfMonth, $year";
 
     $output .=
-    '<a href="' . NaturalDocs::Settings->AppURL() . '">'
-        . 'Generated at ' .$theTime .' by Natural Docs'
-    . '</a> w/ <a href="http://www.aenoa-systems.com">Aenoa Systems</a> for ' . NaturalDocs::Settings->appTitleString();
+    'Generated at ' .$theTime .' by <a href="' . NaturalDocs::Settings->AppURL() . '">'
+        . 'Natural Docs'
+    . '</a>, <a href="https://twitter.com/xavierlaumonier">XL</a> Fork for ' . NaturalDocs::Settings->appTitleString();
 
     if ($multiline)
         {  $output .= '</p>';  };
@@ -2905,6 +2905,7 @@ sub NDMarkupToHTML #(sourceFile, text, symbol, package, type, using, style)
 
     my $output;
     my $inCode;
+    my $lastCodeType;
 
     my @splitText = split(/(<\/?code(?: type="[^"]+")?>)/, $text);
 
@@ -2914,17 +2915,28 @@ sub NDMarkupToHTML #(sourceFile, text, symbol, package, type, using, style)
 
         if ($text =~ /<code type="([^"]+)">/)
             {
-            my $codeType = $1;
+            $lastCodeType = $1;
 
-            my $highlight = ( ($codeType eq "code" && NaturalDocs::Settings->HighlightCode()) ||
-            						  ($codeType eq "anonymous" && NaturalDocs::Settings->HighlightAnonymous()) );
+	    if ( $lastCodeType eq "generated" )
+	    {
+               $output .= '<blockquote class="generated">';
+	    } else {
+		
+		my $highlight = ( ($lastCodeType eq "code" && NaturalDocs::Settings->HighlightCode()) ||
+							      ($lastCodeType eq "anonymous" && NaturalDocs::Settings->HighlightAnonymous()) );
 
-            $output .= '<blockquote><pre' . ($highlight ? ' class="prettyprint"' : '') . '>';
+		$output .= '<blockquote><pre' . ($highlight ? ' class="prettyprint"' : '') . '>';
+	    }
             $inCode = 1;
             }
         elsif ($text eq '</code>')
             {
-            $output .= '</pre></blockquote>';
+	    if ( $lastCodeType eq "generated" ) 
+	    {
+                $output .= '</blockquote>';
+	    } else {
+                $output .= '</pre></blockquote>';
+	    }
             $inCode = undef;
             }
         elsif ($inCode)
