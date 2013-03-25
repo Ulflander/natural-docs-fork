@@ -16,6 +16,7 @@
 
 use Tie::RefHash;
 
+
 use strict;
 use integer;
 
@@ -26,7 +27,15 @@ use base 'NaturalDocs::Builder::Base';
 use NaturalDocs::DefineMembers 'MADE_EMPTY_SEARCH_RESULTS_PAGE', 'MadeEmptySearchResultsPage()',
                                                  'SetMadeEmptySearchResultsPage()';
 
+use Digest::MD5 qw(md5_hex);
+use Encode      qw();
 use File::Basename;
+
+# Table of hash values for escaped characters:
+our %g_escape_table;
+foreach my $char (split //, '\\`*_{}[]()>#+-.!') {
+    $g_escape_table{$char} = md5_hex($char);
+}
 
 ###############################################################################
 # Group: Object Variables
@@ -3013,6 +3022,9 @@ sub NDMarkupToHTML #(sourceFile, text, symbol, package, type, using, style)
                 $text =~ s{<img mode=\"inline\" target=\"[^\"]*\" original=\"([^\"]*)\">}{$1}g;
                 };
 
+            $text = $self->MDMarkupToHTML($text);
+            $text = $self->_UnescapeSpecialChars($text);
+
             # Copyright symbols.  Prevent conversion when part of (a), (b), (c) lists.
             if ($text !~ /\(a\)/i)
                 {  $text =~ s/\(c\)/&copy;/gi;  };
@@ -3071,6 +3083,119 @@ sub NDMarkupToHTML #(sourceFile, text, symbol, package, type, using, style)
     return $output;
     };
 
+
+#
+#   Function: MDMarkupToHTML
+#
+#   Converts a block of HTML with some Markdown in it to HTML.
+#
+#   Returns:
+#
+#       The text in HTML.
+#
+sub MDMarkupToHTML #(input)
+    {
+        my ($self, $text) = @_;
+        
+        $text =~ s@
+                (?<!\\)        # Character before opening ` can't be a backslash
+                (`+)        # $1 = Opening run of `
+                (.+?)        # $2 = The code block
+                (?<!`)
+                \1            # Matching closer
+                (?!`)
+            @
+                 my $c = "$2";
+                 $c =~ s/^[ \t]*//g; # leading whitespace
+                 $c =~ s/[ \t]*$//g; # trailing whitespace
+                 $c = $self->_EncodeCode($c);
+                "<code>$c</code>";
+            @egsx;
+
+        return $text;
+    };
+
+#
+#   Function: CleanMDHTML
+#
+#   Clean a block of HTML with some Markdown in it.
+#
+#   Returns:
+#
+#       The text in HTML.
+#
+sub CleanMDHTML #(input)
+    {
+        my ($self, $text) = @_;
+        
+        $text =~ s@
+                (?<!\\)        # Character before opening ` can't be a backslash
+                (`+)        # $1 = Opening run of `
+                (.+?)        # $2 = The code block
+                (?<!`)
+                \1            # Matching closer
+                (?!`)
+            @
+                 my $c = "$2";
+                 $c =~ s/^[ \t]*//g; # leading whitespace
+                 $c =~ s/[ \t]*$//g; # trailing whitespace
+                 $c = $self->_EncodeCode($c);
+                "<code>$c</code>";
+            @egsx;
+
+        return $text;
+    };
+
+sub _UnescapeSpecialChars {
+#
+# Swap back in all the special characters we've hidden.
+#
+    my ($self, $text) = @_;
+
+    while( my($char, $hash) = each(%g_escape_table) ) {
+        $text =~ s/$hash/$char/g;
+    }
+    return $text;
+}
+
+sub _EncodeCode {
+#
+# Encode/escape certain characters inside Markdown code runs.
+# The point is that in code, these characters are literals,
+# and lose their special Markdown meanings.
+#
+    my $self = shift;
+    local $_ = shift;
+
+    # Encode all ampersands; HTML entities are not
+    # entities within a Markdown code span.
+    s/&/&amp;/g;
+
+    # Encode $'s, but only if we're running under Blosxom.
+    # (Blosxom interpolates Perl variables in article bodies.)
+    {
+        no warnings 'once';
+        if (defined($blosxom::version)) {
+            s/\$/&#036;/g;
+        }
+    }
+
+
+    # Do the angle bracket song and dance:
+    s! <  !&lt;!gx;
+    s! >  !&gt;!gx;
+
+    # Now, escape characters that are magic in Markdown:
+    s! \* !$g_escape_table{'*'}!ogx;
+    s! _  !$g_escape_table{'_'}!ogx;
+    s! {  !$g_escape_table{'{'}!ogx;
+    s! }  !$g_escape_table{'}'}!ogx;
+    s! \[ !$g_escape_table{'['}!ogx;
+    s! \] !$g_escape_table{']'}!ogx;
+    s! \\ !$g_escape_table{'\\'}!ogx;
+
+    return $_;
+}
 
 #
 #   Function: BuildTextLink
