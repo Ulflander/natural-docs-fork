@@ -265,6 +265,18 @@ Topic Type: Delegate
       delegate, delegates
 
 
+Topic Type: Object
+
+   Plural: Objects
+   Scope: Start
+   Class Hierarchy: No
+   Page Title If First: Yes
+   Can Group With: Classes
+
+   Keywords:
+      object, objects
+
+
 Topic Type: Todo
 
    Plural: Todos
