@@ -1056,8 +1056,9 @@ sub BuildContent #(sourceFile, parsedFile)
             . '<div class=CTopic' . ($i == 0 ? ' id=MainTopic' : '') . '>'
 
                 . '<' . $headerType . ' class=CTitle>'
-                    . '<a name="' . $anchor . '"></a>'
-                    . $self->StringToHTML( $parsedFile->[$i]->Title(), ADD_HIDDEN_BREAKS);
+                    . '<a name="' . $anchor . '" href="#' . $anchor . '">'
+                    . $self->StringToHTML( $parsedFile->[$i]->Title(), ADD_HIDDEN_BREAKS)
+                    . '</a>';
         
             if ($parsedFile->[$i]->IsStatic())
                 {
@@ -1334,13 +1335,11 @@ sub BuildPrototype #(type, prototype, file)
         {
         $output =
         # A blockquote to scroll it if it's too long.
-        '<blockquote>'
+        '<blockquote class="Proto">'
             # A surrounding table as a hack to make the div form-fit.
-            . '<table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr>'
-            	. '<td' . (NaturalDocs::Settings->HighlightCode() ? ' class="prettyprint"' : '') . '>'
+            . '<span>'
 	                . $self->ConvertAmpChars($prototypeObject->BeforeParameters())
-	            . '</td>'
-	        . '</tr></table>'
+	            . '</span>'
         . '</blockquote>';
         }
 
@@ -1413,31 +1412,20 @@ sub BuildPrototype #(type, prototype, file)
                                                $hasDefaultValue + $hasDefaultValuePrefix + $useCondensed;
 
         $output =
-        '<blockquote><table border=0 cellspacing=0 cellpadding=0 class="Prototype"><tr><td>'
+        '<blockquote class="Proto">'
 
-            # Stupid hack to get it to work right in IE.
-            . '<table border=0 cellspacing=0 cellpadding=0><tr>'
-
-            . '<td class="PBeforeParameters ' . $highlightClass . '"' . ($useCondensed ? 'colspan=' . $parameterColumns : 'nowrap') . '>'
+            . '<span class="PBeforeParameters">'
                 . $self->ConvertAmpChars($beforeParams);
 
                 if ($beforeParams && $beforeParams !~ /[\(\[\{\<]$/)
                     {  $output .= '&nbsp;';  };
 
             $output .=
-            '</td>';
+            '</span>';
+
 
             for (my $i = 0; $i < scalar @$params; $i++)
                 {
-                if ($useCondensed)
-                    {
-                    $output .= '</tr><tr><td>&nbsp;&nbsp;&nbsp;</td>';
-                    }
-                elsif ($i > 0)
-                    {
-                    # Go to the next row and and skip the BeforeParameters cell.
-                    $output .= '</tr><tr><td></td>';
-                    };
 
                 if ($language->TypeBeforeParameter())
                     {
@@ -1447,39 +1435,39 @@ sub BuildPrototype #(type, prototype, file)
                         $htmlTypePrefix =~ s/ $/&nbsp;/;
 
                         $output .=
-                        '<td class="PTypePrefix ' . $highlightClass . '" nowrap>'
+                        '<span>'
                             . $htmlTypePrefix
-                        . '</td>';
+                        . '</span>';
                         };
 
                     if ($hasType)
                         {
                         $output .=
-                        '<td class="PType ' . $highlightClass . '" nowrap>'
-                            . $self->ConvertAmpChars($params->[$i]->Type()) . '&nbsp;'
-                        . '</td>';
+                        '<span class="PType ' . $highlightClass . '">'
+                            . $self->ConvertAmpChars($params->[$i]->Type()) . ''
+                        . '</span>';
                         };
 
                     if ($hasNamePrefix)
                         {
                         $output .=
-                        '<td class="PParameterPrefix ' . $highlightClass . '" nowrap>'
+                        '<span class="PParameterPrefix ' . $highlightClass . '">'
                             . $self->ConvertAmpChars($params->[$i]->NamePrefix())
-                        . '</td>';
+                        . '</span>';
                         };
 
                     $output .=
-                    '<td class="PParameter ' . $highlightClass . '" nowrap' . ($useCondensed && !$hasDefaultValue ? ' width=100%' : '') . '>'
+                    '<span class="PParameter ' . $highlightClass . '">'
                         . $self->ConvertAmpChars($params->[$i]->Name())
-                    . '</td>';
+                    . '</span>';
                     }
 
                 else # !$language->TypeBeforeParameter()
                     {
                     $output .=
-                    '<td class="PParameter ' . $highlightClass . '" nowrap>'
+                    '<span class="PParameter ' . $highlightClass . '">'
                         . $self->ConvertAmpChars( $params->[$i]->NamePrefix() . $params->[$i]->Name() )
-                    . '</td>';
+                    . '</span>';
 
                     if ($hasType || $hasTypePrefix)
                         {
@@ -1488,46 +1476,35 @@ sub BuildPrototype #(type, prototype, file)
                             {  $typePrefix .= ' ';  };
 
                         $output .=
-                        '<td class="PType ' . $highlightClass . '" nowrap' . ($useCondensed && !$hasDefaultValue ? ' width=100%' : '') . '>'
-                            . '&nbsp;' . $self->ConvertAmpChars( $typePrefix . $params->[$i]->Type() )
-                        . '</td>';
+                        '<span class="PType ' . $highlightClass . '">'
+                            . '' . $self->ConvertAmpChars( $typePrefix . $params->[$i]->Type() )
+                        . '</span>';
                         };
                     };
 
                 if ($hasDefaultValuePrefix)
                     {
                     $output .=
-                    '<td class="PDefaultValuePrefix ' . $highlightClass . '">'
+                    '<span class="PDefaultValuePrefix ' . $highlightClass . '">'
 
-                       . '&nbsp;' . $self->ConvertAmpChars( $params->[$i]->DefaultValuePrefix() ) . '&nbsp;'
-                    . '</td>';
+                       . '' . $self->ConvertAmpChars( $params->[$i]->DefaultValuePrefix() ) . '&nbsp;'
+                    . '</span>';
                     };
 
                 if ($hasDefaultValue)
                     {
                     $output .=
-                    '<td class="PDefaultValue ' . $highlightClass . '" width=100%>'
-                        . ($hasDefaultValuePrefix ? '' : '&nbsp;') . $self->ConvertAmpChars( $params->[$i]->DefaultValue() )
-                    . '</td>';
+                    '<span class="PDefaultValue ' . $highlightClass . '">'
+                        . $self->ConvertAmpChars( $params->[$i]->DefaultValue() )
+                    . '</span>';
                     };
                 };
 
-            if ($useCondensed)
-                {  $output .= '</tr><tr>';  };
-
             $output .=
-            '<td class="PAfterParameters ' . $highlightClass . '"' . ($useCondensed ? 'colspan=' . $parameterColumns : 'nowrap') . '>'
+            '<span class="PAfterParameters ' . $highlightClass . '">'
                  . $self->ConvertAmpChars($afterParams);
 
-                if ($afterParams && $afterParams !~ /^[\)\]\}\>]/)
-                    {  $output .= '&nbsp;';  };
-
-            $output .=
-            '</td>'
-        . '</tr></table>'
-
-        # Hack.
-        . '</td></tr></table></blockquote>';
+            $output .='</span></blockquote>';
        };
 
     return $output;
@@ -1588,7 +1565,7 @@ sub BuildFooter #(bool multiline)
     $output .=
     'Generated at ' .$theTime .' by <a href="' . NaturalDocs::Settings->AppURL() . '">'
         . 'Natural Docs'
-    . '</a>, <a href="https://twitter.com/xavierlaumonier">XL</a> Fork for ' . NaturalDocs::Settings->appTitleString();
+    . '</a>, <a href="https://github.com/Ulflander/natural-docs-fork">Ulflander</a> fork for ' . NaturalDocs::Settings->appTitleString();
 
     if ($multiline)
         {  $output .= '</p>';  };
@@ -2046,9 +2023,9 @@ sub BuildIndexPages #(TopicType type, NaturalDocs::SymbolTable::IndexElement[] i
         print INDEXFILEHANDLE
         '<tr>'
             . '<td class=IHeading' . ($firstHeading ? ' id=IFirstHeading' : '') . '>'
-                . '<a name="' . $indexAnchors[$i] . '"></a>'
+                . '<a name="' . $indexAnchors[$i] . '" href="' . $indexAnchors[$i] . '">'
                  . $indexHeadings[$i]
-            . '</td>'
+            . '</a></td>'
             . '<td></td>'
         . '</tr>'
 
@@ -3068,8 +3045,8 @@ sub NDMarkupToHTML #(sourceFile, text, symbol, package, type, using, style)
                 '<tr>'
                     . '<td class=CDLEntry>'
                         # The anchors are closed, but not around the text, to prevent the :hover CSS style from kicking in.
-                        . '<a name="' . $self->SymbolToHTMLSymbol($symbol) . '"></a>'
-                        . $text
+                        . '<a name="' . $self->SymbolToHTMLSymbol($symbol) . '" href="#' . $self->SymbolToHTMLSymbol($symbol) . '">'
+                        . $text . '</a>'
                     . '</td>';
                 };
 

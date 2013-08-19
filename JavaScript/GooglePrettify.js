@@ -1,5 +1,5 @@
 
-// This code comes from the December 2009 release of Google Prettify, which is Copyright © 2006 Google Inc.
+// This code comes from the December 2009 release of Google Prettify, which is Copyright Â© 2006 Google Inc.
 // Minor modifications are marked with "ND Change" comments.
 // As part of Natural Docs, this code is licensed under version 3 of the GNU Affero General Public License (AGPL.)
 // However, it may also be obtained separately under version 2.0 of the Apache License.
@@ -135,8 +135,8 @@ window['_pr_isIE6'] = function () {
       "object out override orderby params partial readonly ref sbyte sealed " +
       "stackalloc string select uint ulong unchecked unsafe ushort var ";
   var JSCRIPT_KEYWORDS = COMMON_KEYWORDS +
-      "debugger eval export function get null set undefined var with " +
-      "Infinity NaN ";
+      "debugger eval export function null undefined var with " +
+      "Infinity NaN isNaN parseInt parseFloat ";
   var PERL_KEYWORDS = "caller delete die do dump elsif eval exit foreach for " +
       "goto if import last local my next no our print package redo require " +
       "sub undef unless until use wantarray while BEGIN END ";
